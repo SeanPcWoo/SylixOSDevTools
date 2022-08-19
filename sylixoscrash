@@ -1,0 +1,38 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# SylixOS Crash Tool
+# author: WuPengCheng
+# date: 2022-8-19
+
+import os
+import sys
+
+# run 'aarch64-none-elf-addr2line' cmd to get the line number of the address
+def sylixos_addr2line(filepath, baseaddr, runaddr):
+    # get offset addr
+    offsetaddr = hex(runaddr - baseaddr).upper()
+    # run addr2line cmd
+    cmd = 'aarch64-none-elf-addr2line -e ' + filepath + ' -f ' + '-a ' +'-p '+ str(offsetaddr)
+    # run cmd
+    os.system(cmd)
+
+# main
+if __name__ == '__main__':
+    # 从启动参数获取文件名
+    if len(sys.argv) != 4:
+        print("Usage: %s <filepath> <baseaddr> <runaddr>" % sys.argv[0])
+        sys.exit(1)
+    filepath = sys.argv[1]
+    # check file is exist
+    if not os.path.exists(filepath):
+        print("file not exist")
+        sys.exit(1)
+        
+    baseaddr = int(sys.argv[2], 16)
+    runaddr  = int(sys.argv[3], 16)
+    # 判断 runaddr 是否小于 baseaddr
+    if runaddr < baseaddr:
+        print("runaddr is less than baseaddr")
+        sys.exit(1)
+    # 调用 addr2line 函数
+    sylixos_addr2line(filepath, baseaddr, runaddr)
